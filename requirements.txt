@@ -1,25 +1,36 @@
-# Core framework
-flask
+# LinkedIn Profile Analyzer - Requirements
+# Python 3.8+ required
 
-# Environment and configuration
-python-dotenv
+# Core Web Framework
+flask==3.0.0
 
-# LangChain components
-langchain
-langchain-openai
-langchain-core
-langsmith
+# Environment Configuration
+python-dotenv==1.0.0
 
-# Data handling and validation
-pydantic
+# LangChain Framework and Components
+langchain==0.1.0
+langchain-openai==0.0.5
+langchain-core==0.1.10
+langsmith==0.0.69
 
-# HTTP requests
-requests
+# Data Validation and Parsing
+pydantic==2.5.0
 
-# Web search API
-tavily-python
+# HTTP Client
+requests==2.31.0
 
-# Development tools (optional)
-# pytest
-# black
-# flake8
+# Web Search API Client
+tavily-python==0.3.3
+
+# Optional Development Dependencies
+# Uncomment the following lines for development environment
+# pytest==7.4.3
+# pytest-flask==1.3.0
+# black==23.11.0
+# flake8==6.1.0
+# isort==5.12.0
+
+# Optional Production Dependencies
+# Uncomment for production deployment
+# gunicorn==21.2.0
+# waitress==2.1.2
