@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Profile Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0077b5;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        button {
+            background-color: #0077b5;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #005885;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            margin: 20px 0;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            display: block;
+        }
+        .summary {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .facts {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #0077b5;
+        }
+        .fact {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #f0f8ff;
+            border-radius: 3px;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 LinkedIn Profile Analyzer</h1>
+        
+        <form id="searchForm">
+            <div class="form-group">
+                <label for="name">Person's Name:</label>
+                <input type="text" id="name" name="name" placeholder="e.g., John Smith" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="details">Additional Details (optional):</label>
+                <textarea id="details" name="details" placeholder="e.g., Software Engineer at Google, lives in San Francisco"></textarea>
+            </div>
+            
+            <button type="submit" id="searchBtn">Search Profile</button>
+        </form>
+
+        <div id="loading" class="loading hidden">
+            🤖 AI agents are working... Finding LinkedIn profile and analyzing data...
+        </div>
+
+        <div id="error" class="error hidden"></div>
+
+        <div id="results" class="results hidden">
+            <div id="profileContent"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const details = document.getElementById('details').value.trim();
+            
+            if (!name) {
+                showError('Please enter a name');
+                return;
+            }
+
+            // Show loading, hide results and errors
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('searchBtn').disabled = true;
+            document.getElementById('searchBtn').textContent = 'Searching...';
+
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, details })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Unknown error occurred');
+                }
+
+                displayResults(data);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('searchBtn').disabled = false;
+                document.getElementById('searchBtn').textContent = 'Search Profile';
+            }
+        });
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('profileContent');
+            
+            let html = `<h3>Profile: ${data.name}</h3>`;
+            
+            // Profile image
+            if (data.profile_image_url) {
+                html += `<img src="${data.profile_image_url}" alt="Profile Picture" class="profile-image" onerror="this.style.display='none'">`;
+            }
+            
+            // Summary
+            if (data.summary) {
+                html += `<div class="summary"><h4>Summary:</h4><p>${data.summary}</p></div>`;
+            }
+            
+            // Interesting facts
+            if (data.facts && data.facts.length > 0) {
+                html += `<div class="facts"><h4>Interesting Facts:</h4>`;
+                data.facts.forEach(fact => {
+                    html += `<div class="fact">• ${fact}</div>`;
+                });
+                html += `</div>`;
+            }
+            
+            contentDiv.innerHTML = html;
+            resultsDiv.classList.remove('hidden');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

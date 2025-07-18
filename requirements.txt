@@ -1,0 +1,25 @@
+# Core framework
+flask
+
+# Environment and configuration
+python-dotenv
+
+# LangChain components
+langchain
+langchain-openai
+langchain-core
+langsmith
+
+# Data handling and validation
+pydantic
+
+# HTTP requests
+requests
+
+# Web search API
+tavily-python
+
+# Development tools (optional)
+# pytest
+# black
+# flake8
